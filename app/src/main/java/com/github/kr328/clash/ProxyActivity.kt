@@ -78,7 +78,7 @@ class ProxyActivity : BaseActivity() {
         runClash { clash ->
             val packet = clash.queryAllProxies()
             val proxies = packet.proxies
-            val order = (proxies["GLOBAL".hashCode()] ?: error("GLOBAL not found")).all
+            val order = (proxies["GLOBAL".hashCode()]?.all ?: emptyList())
                 .mapIndexed { index, i -> i to index }.toMap()
 
             val listData = proxies
@@ -142,7 +142,7 @@ class ProxyActivity : BaseActivity() {
                 .filterIsInstance<ListProxy.ListProxyHeader>()
                 .map { it.now }
 
-            val changed = if (listDataOldChanged.size != listDataChanged.size)
+            val changed = (if (listDataOldChanged.size != listDataChanged.size)
                 (0..listData.size).toList()
             else {
                 listDataChanged.mapIndexed { index, i ->
@@ -150,8 +150,12 @@ class ProxyActivity : BaseActivity() {
                         emptyList()
                     else
                         listOf(listDataOldChanged[index], i)
-                }.flatten()
-            }
+                }.flatten() + listData.withIndex().filter {
+                    it.value is ListProxy.ListProxyHeader
+                }.map {
+                    it.index
+                }
+            }).toSet()
 
             runOnUiThread {
                 activity_proxies_swipe.isRefreshing = false
@@ -159,7 +163,7 @@ class ProxyActivity : BaseActivity() {
                 (activity_proxies_list.adapter!! as ProxyAdapter).apply {
                     elements = listData
 
-                    changed.toSet().forEach {
+                    changed.forEach {
                         notifyItemChanged(it)
                     }
                 }

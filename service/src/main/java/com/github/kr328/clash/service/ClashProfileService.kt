@@ -42,6 +42,12 @@ class ClashProfileService(context: Context, private val master: Master) :
         master.preformProfileChanged()
     }
 
+    override fun touchProfile(id: Int) {
+        profileDao.touchProfile(id)
+
+        master.preformProfileChanged()
+    }
+
     override fun queryProfiles(): Array<ClashProfileEntity> {
         return profileDao.queryProfiles()
     }

@@ -101,11 +101,11 @@ class ClashService : Service(), IClashEventObserver, ClashEventService.Master,
             clash.process.stop()
         }
 
-        override fun startTunDevice(fd: ParcelFileDescriptor, mtu: Int) {
+        override fun startTunDevice(fd: ParcelFileDescriptor, mtu: Int, dnsHijacking: Boolean) {
             try {
                 notification.setVpn(true)
 
-                clash.startTunDevice(fd.fileDescriptor, mtu)
+                clash.startTunDevice(fd.fileDescriptor, mtu, dnsHijacking)
             } catch (e: Exception) {
                 Log.e("Start tun failure", e)
 
@@ -290,6 +290,10 @@ class ClashService : Service(), IClashEventObserver, ClashEventService.Master,
         }
     }
 
+    override fun onProfileReloaded(event: ProfileReloadEvent?) {
+        sendBroadcast(Intent(Constants.CLASH_RELOAD_BROADCAST_ACTION).setPackage(packageName))
+    }
+
     override fun onSpeedEvent(event: SpeedEvent?) {
         notification.setSpeed(event?.up ?: 0, event?.down ?: 0)
     }
@@ -313,7 +317,6 @@ class ClashService : Service(), IClashEventObserver, ClashEventService.Master,
     override fun onBandwidthEvent(event: BandwidthEvent?) {}
     override fun onLogEvent(event: LogEvent?) {}
     override fun onErrorEvent(event: ErrorEvent?) {}
-    override fun onProfileReloaded(event: ProfileReloadEvent?) {}
     override fun asBinder(): IBinder = object : Binder() {
         override fun queryLocalInterface(descriptor: String): IInterface? {
             return this@ClashService

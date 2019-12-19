@@ -27,10 +27,6 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setSupportActionBar(activity_main_toolbar.apply {
-            setLogo(R.mipmap.ic_launcher_foreground)
-        })
-
         activity_main_clash_proxies.setOnClickListener {
             startActivity(Intent(this, ProxyActivity::class.java))
         }
@@ -57,7 +53,7 @@ class MainActivity : BaseActivity() {
 
         activity_main_clash_status_icon.setImageResource(R.drawable.ic_clash_stopped)
         activity_main_clash_status_title.text = getString(R.string.clash_status_stopped)
-        activity_main_clash_status_summary.text = getString(R.string.clash_status_click_to_start)
+        activity_main_clash_status_summary.text = getString(R.string.clash_status_tap_to_start)
         activity_main_clash_proxies.visibility = View.GONE
         activity_main_clash_logs.visibility = View.GONE
 
@@ -75,6 +71,10 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    override fun shouldDisplayHomeAsUpEnabled(): Boolean {
+        return false
     }
 
     override fun onProcessEvent(event: ProcessEvent?) {
@@ -99,7 +99,7 @@ class MainActivity : BaseActivity() {
                     activity_main_clash_status_icon.setImageResource(R.drawable.ic_clash_stopped)
                     activity_main_clash_status_title.text = getString(R.string.clash_status_stopped)
                     activity_main_clash_status_summary.text =
-                        getString(R.string.clash_status_click_to_start)
+                        getString(R.string.clash_status_tap_to_start)
                     activity_main_clash_proxies.visibility = View.GONE
                     activity_main_clash_logs.visibility = View.GONE
                 }

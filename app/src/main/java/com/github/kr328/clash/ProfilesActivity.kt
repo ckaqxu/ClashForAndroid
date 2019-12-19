@@ -33,18 +33,13 @@ class ProfilesActivity : BaseActivity() {
 
         setSupportActionBar(activity_profiles_toolbar)
 
-        activity_profiles_new_profile.setOnClickListener {
-            startActivity(Intent(this, CreateProfileActivity::class.java))
-        }
-
-        activity_profiles_main_list.layoutManager = object : LinearLayoutManager(this) {
-            override fun canScrollHorizontally(): Boolean = false
-            override fun canScrollVertically(): Boolean = false
-        }
+        activity_profiles_main_list.layoutManager = LinearLayoutManager(this)
         activity_profiles_main_list.adapter = ProfileAdapter(this,
             this::onProfileClick,
             this::onOperateClick,
-            this::onProfileLongClick)
+            this::onProfileLongClick) {
+            startActivity(Intent(this, CreateProfileActivity::class.java))
+        }
     }
 
     override fun onStart() {
@@ -180,8 +175,7 @@ class ProfilesActivity : BaseActivity() {
                     }
 
                     runClash { clash ->
-                        clash.profileService.addProfile(profile
-                            .copy(lastUpdate = System.currentTimeMillis()))
+                        clash.profileService.touchProfile(profile.id)
                     }
                 }
                 catch (e: Exception) {
@@ -195,7 +189,8 @@ class ProfilesActivity : BaseActivity() {
                 }
 
                 runOnUiThread {
-                    dialog?.dismiss()
+                    if ( dialog?.isShowing == true )
+                        dialog?.dismiss()
                 }
             }
         }

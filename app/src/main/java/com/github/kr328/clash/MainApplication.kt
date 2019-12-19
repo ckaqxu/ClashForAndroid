@@ -2,8 +2,11 @@ package com.github.kr328.clash
 
 import android.app.Application
 import android.content.Context
+import com.crashlytics.android.Crashlytics
+import com.github.kr328.clash.core.Constants
 import com.github.kr328.clash.core.utils.Log
 import com.google.firebase.FirebaseApp
+import io.fabric.sdk.android.Fabric
 
 class MainApplication : Application() {
     companion object {
@@ -23,11 +26,45 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        try {
+        runCatching {
             FirebaseApp.initializeApp(this)
-            Log.i("Registered")
-        } catch (e: IllegalStateException) {
-            Log.i("Already registered")
+        }
+        runCatching {
+            Fabric.with(this)
+        }
+
+        Log.handler = object: Log.LogHandler {
+            override fun info(message: String, throwable: Throwable?) {
+                android.util.Log.i(Constants.TAG, message, throwable)
+            }
+
+            override fun warn(message: String, throwable: Throwable?) {
+                throwable?.also {
+                    Crashlytics.logException(it)
+                }
+
+                android.util.Log.w(Constants.TAG, message, throwable)
+            }
+
+            override fun error(message: String, throwable: Throwable?) {
+                throwable?.also {
+                    Crashlytics.logException(it)
+                }
+
+                android.util.Log.e(Constants.TAG, message, throwable)
+            }
+
+            override fun wtf(message: String, throwable: Throwable?) {
+                throwable?.also {
+                    Crashlytics.logException(it)
+                }
+
+                android.util.Log.wtf(Constants.TAG, message, throwable)
+            }
+
+            override fun debug(message: String, throwable: Throwable?) {
+                android.util.Log.d(Constants.TAG, message, throwable)
+            }
         }
     }
 }
